@@ -113,6 +113,19 @@ Returns true on success.
 
 Items
 ```
+rarities = {
+    white = 1,
+    green = 2,
+    red = 3,
+    equipment = 4,
+    boss = 5,
+    purple = 6,
+    food = 7,
+    notier = 8
+}
+```
+
+```
 initialize_item_table() -> void
 
 Called internally by the item

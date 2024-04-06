@@ -266,7 +266,7 @@ end
 
 
 --[[
-    find_item(identifier) -> table
+    find_item(identifier) -> table or nil
 
     identifier      object_index or localization string of the item
 

@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.0
+-- HelperFunctions v1.0.1
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -42,7 +42,7 @@ end
 
 
 --[[
-    find_active_instance_all(index) -> table or nil, bool
+    find_active_instance_all(index) -> table, bool
 
     index           The object_index of the instance
 
@@ -118,7 +118,7 @@ end
 
 
 --[[
-    get_chests() -> table or nil, bool
+    get_chests() -> table, bool
 
     Returns:
     1. a table of all chests on the stage
@@ -141,7 +141,7 @@ end
 
 
 --[[
-    get_multishops() -> table or nil, bool
+    get_multishops() -> table, bool
 
     Returns:
     1. a table of all multishops on the stage
@@ -270,7 +270,7 @@ end
 
     identifier      object_index or localization string of the item
 
-    Returns the item table (see initialize_item_table)
+    Returns the table containing item data (see initialize_item_table)
     if it exists, or nil otherwise.
 ]]
 find_item = function(identifier)

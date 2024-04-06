@@ -30,7 +30,7 @@ object_index, or nil if none can be found.
 ```
 
 ```
-find_active_instance_all(index) -> table or nil
+find_active_instance_all(index) -> table or nil, bool
 
 index           The object_index of the instance
 
@@ -67,7 +67,7 @@ takes precedence over standard teleporters.
 ```
 
 ```
-get_chests() -> table or nil
+get_chests() -> table or nil, bool
 
 Returns:
 1. a table of all chests on the stage
@@ -75,7 +75,7 @@ Returns:
 ```
 
 ```
-get_multishops() -> table or nil
+get_multishops() -> table or nil, bool
 
 Returns:
 1. a table of all multishops on the stage

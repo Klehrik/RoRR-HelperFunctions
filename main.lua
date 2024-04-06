@@ -42,7 +42,7 @@ end
 
 
 --[[
-    find_active_instance_all(index) -> table or nil
+    find_active_instance_all(index) -> table or nil, bool
 
     index           The object_index of the instance
 
@@ -118,7 +118,7 @@ end
 
 
 --[[
-    get_chests() -> table or nil
+    get_chests() -> table or nil, bool
 
     Returns:
     1. a table of all chests on the stage
@@ -141,7 +141,7 @@ end
 
 
 --[[
-    get_multishops() -> table or nil
+    get_multishops() -> table or nil, bool
 
     Returns:
     1. a table of all multishops on the stage

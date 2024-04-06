@@ -19,6 +19,7 @@ mods.on_all_mods_loaded(function() for k, v in pairs(mods) do if type(v) == "tab
 
 ### Functions
 
+Instances
 ```
 find_active_instance(index) -> instance or nil
 
@@ -46,8 +47,7 @@ inst            The instance to check
 Returns true if the instance exists.
 ```
 
-
-
+Specific Instances
 ```
 get_client_player() -> instance or nil
 
@@ -82,8 +82,7 @@ Returns:
 2. true if the table is not empty
 ```
 
-
-
+Misc.
 ```
 ease_in(x, n) -> float
 
@@ -112,8 +111,7 @@ n               The chance to succeed (between 0 and 1)
 Returns true on success.
 ```
 
-
-
+Items
 ```
 initialize_item_table() -> void
 

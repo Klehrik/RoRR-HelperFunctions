@@ -189,7 +189,7 @@ end
 
 
 --[[
-    chance(n) -> float
+    chance(n) -> bool
 
     n               The chance to succeed (between 0 and 1)
 

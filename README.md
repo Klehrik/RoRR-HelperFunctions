@@ -104,7 +104,7 @@ a given value x between 0 and 1.
 ```
 
 ```
-chance(n) -> float
+chance(n) -> bool
 
 n               The chance to succeed (between 0 and 1)
 

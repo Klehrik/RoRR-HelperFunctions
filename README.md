@@ -47,6 +47,7 @@ Returns true if the instance exists.
 ```
 
 
+
 ```
 get_client_player() -> instance or nil
 
@@ -82,6 +83,7 @@ Returns:
 ```
 
 
+
 ```
 ease_in(x, n) -> float
 
@@ -109,6 +111,7 @@ n               The chance to succeed (between 0 and 1)
 
 Returns true on success.
 ```
+
 
 
 ```

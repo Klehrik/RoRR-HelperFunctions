@@ -128,11 +128,13 @@ rarities = {
 ```
 initialize_item_table() -> void
 
+Initializes a table of item data tables.
+
 Called internally by the item
 functions below, but can be
 reinitialized anytime.
 
-Each item table contains:
+Each item data table contains:
 .id             The object_index of the item
 .localization   The localization string of the item (i.e., "item.crowbar.name")
 .name           The name of the item in the current language
@@ -146,7 +148,7 @@ get_all_items(rarity) -> table
 
 rarity          Item rarity filter (optional)
 
-Returns a table of item tables (see initialize_item_table).
+Returns a table of item data tables (see initialize_item_table).
 If given, only returns items of a specified rarity.
 ```
 
@@ -155,6 +157,6 @@ find_item(identifier) -> table or nil
 
 identifier      object_index or localization string of the item
 
-Returns the table containing item data (see initialize_item_table)
+Returns the item data table (see initialize_item_table)
 if it exists, or nil otherwise.
 ```

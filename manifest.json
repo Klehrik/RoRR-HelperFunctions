@@ -1,0 +1,9 @@
+﻿{
+	"name": "HelperFunctions",
+	"version_number": "1.0.0",
+	"website_url": "A collection of helper functions for modding.",
+	"description": "description",
+	"dependencies": [
+		"ReturnOfModding-ReturnOfModding-1.0.20"
+	]
+}

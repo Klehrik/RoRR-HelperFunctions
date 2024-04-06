@@ -278,13 +278,10 @@ end
 find_item = function(identifier)
     if not items then initialize_item_table() end
     local _type = type(identifier)
-    for i = 1, #items do
-        local rarity = items[i]
-        for j = 1, #rarity do
-            local item = rarity[j]
-            if _type == "number" and item.id == identifier then return item end
-            if _type == "string" and item.localization == identifier then return item end
-        end
+    for i = 1, #items_all do
+        local item = items_all[i]
+        if _type == "number" and item.id == identifier then return item end
+        if _type == "string" and item.localization == identifier then return item end
     end
     return nil
 end

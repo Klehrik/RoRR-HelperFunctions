@@ -9,11 +9,15 @@ mods.on_all_mods_loaded(function() for k, v in pairs(mods) do if type(v) == "tab
 
 ### Installation Instructions
 
-* Navigate to the folder containing the *Risk of Rain Returns* executable (.exe) file.  (`Steam/steamapps/common/Risk of Rain Returns`)
-* Download [`version.dll`](https://github.com/return-of-modding/ReturnOfModding/releases/tag/nightly) from either [Thunderstore](https://thunderstore.io/c/risk-of-rain-returns/p/ReturnOfModding/ReturnOfModding/) or the [unofficial modding GitHub page](https://github.com/return-of-modding/ReturnOfModding/) and place it into the folder.
-* Run the game, and a folder called `ReturnOfModding` should be created.
-* Close the game, navigate to the new folder, and extract the mod .zip into the `plugins` subfolder.
-* Run the game again, and the mod should now be loaded. Enjoy!
+Install this mod through the Mod Manager:
+* Download the [Immediate Mod Manager](https://thunderstore.io/c/risk-of-rain-returns/p/ReturnOfModding/ImmediateModManager) and open it.
+* Launch the game once through Steam with the Mod Manager open to complete the setup.
+* Close the game, and install this mod along with its dependencies (`ReturnOfModding` and `HelperFunctions`) from the list on the left-hand side.
+* Launch the game by clicking the "Launch Game" button, and the mods should be loaded. Enjoy!
+
+
+### Credits
+* Everybody active in the [Return of Modding server](https://discord.gg/VjS57cszMq).
 
 ---
 
@@ -138,9 +142,12 @@ Each item data table contains:
 .id             The object_index of the item
 .localization   The localization string of the item (i.e., "item.crowbar.name")
 .name           The name of the item in the current language
-.rarity         The rarity of the item  (number)
+.rarity         The rarity (tier) of the item  (number)
                 * This also corresponds to the .rarities enum at the top
                 * White (Common) is indexed from 1 here, while in-game it is tier 0
+.class_id       The index within the class_item/class_equipment arrays
+.namespace      The namespace that the item resides in (vanilla uses "ror")
+.identifier     The internal identifier that the item uses (i.e., "crowbar")
 ```
 
 ```

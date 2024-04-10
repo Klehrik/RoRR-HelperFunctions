@@ -3,3 +3,6 @@
 
 ### v1.0.1
 * Edited documentation a bit.
+
+### v1.0.2
+* Added more fields to item data tables.

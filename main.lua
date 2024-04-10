@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.1
+-- HelperFunctions v1.0.2
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -213,9 +213,12 @@ end
     .id             The object_index of the item
     .localization   The localization string of the item (i.e., "item.crowbar.name")
     .name           The name of the item in the current language
-    .rarity         The rarity of the item  (number)
+    .rarity         The rarity (tier) of the item  (number)
                     * This also corresponds to the .rarities enum at the top
                     * White (Common) is indexed from 1 here, while in-game it is tier 0
+    .class_id       The index within the class_item/class_equipment arrays
+    .namespace      The namespace that the item resides in (vanilla uses "ror")
+    .identifier     The internal identifier that the item uses (i.e., "crowbar")
 ]]
 initialize_item_table = function()
     items = {}
@@ -230,7 +233,10 @@ initialize_item_table = function()
             id = item[9],
             localization = item[3], 
             name = gm.ds_map_find_value(lang_map, item[3]),
-            rarity = rarity
+            rarity = rarity,
+            class_id = i,
+            namespace = item[1],
+            identifier = item[2]
         }
         table.insert(items[rarity], data)
         table.insert(items_all, data)
@@ -244,7 +250,10 @@ initialize_item_table = function()
             id = equip[9],
             localization = equip[3],
             name = gm.ds_map_find_value(lang_map, equip[3]),
-            rarity = rarity
+            rarity = rarity,
+            class_id = i,
+            namespace = equip[1],
+            identifier = equip[2]
         }
         table.insert(items[rarity], data)
         table.insert(items_all, data)

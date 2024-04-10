@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.2
+-- HelperFunctions v1.0.3
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -197,6 +197,18 @@ end
 ]]
 chance = function(n)
     return gm.random_range(0, 1) <= n
+end
+
+
+--[[
+    add_chat_message(text) -> void
+
+    text            The message to send
+
+    Taken from ShareItem mod.
+]]
+add_chat_message = function(text)
+    gm.chat_add_message(gm["@@NewGMLObject@@"](gm.constants.ChatMessage, text))
 end
 
 

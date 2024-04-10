@@ -115,6 +115,14 @@ n               The chance to succeed (between 0 and 1)
 Returns true on success.
 ```
 
+```
+add_chat_message(text) -> void
+
+text            The message to send
+
+Taken from ShareItem mod.
+```
+
 Items
 ```
 rarities = {

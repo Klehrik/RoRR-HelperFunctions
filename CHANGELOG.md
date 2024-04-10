@@ -6,3 +6,7 @@
 
 ### v1.0.2
 * Added more fields to item data tables.
+
+### v1.0.3
+* Updated manifest dependency.
+* Added add_chat_message (from ShareItem).

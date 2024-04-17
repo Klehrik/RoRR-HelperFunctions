@@ -192,6 +192,7 @@ Each item data table contains:
 .rarity         The rarity (tier) of the item  (number)
                 * This also corresponds to the .rarities enum at the top
                 * White (Common) is indexed from 1 here, while in-game it is tier 0
+                * "notier" (tier 8) items may be missing object_indexes
 .class_id       The index within the class_item/class_equipment arrays
 .namespace      The namespace that the item resides in (vanilla uses "ror")
 .identifier     The internal identifier that the item uses (i.e., "crowbar")

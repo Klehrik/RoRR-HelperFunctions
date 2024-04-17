@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.3
+-- HelperFunctions v1.0.4
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -86,11 +86,28 @@ get_client_player = function()
 
     -- Get the player that belongs to this client
     local players = find_active_instance_all(gm.constants.oP)
-    for i = 1, #players do
-        if players[i] then
-            if players[i].user_name == pref_name then
-                return players[i]
-            end
+    for _, p in ipairs(players) do
+        if p.user_name == pref_name then
+            return p
+        end
+    end
+
+    return nil
+end
+
+
+--[[
+    get_host_player() -> instance or nil
+
+    Returns the player instance belonging to
+    the host, or nil if none can be found.
+]]
+get_host_player = function()
+    -- Get the player that has an m_id of 1.0
+    local players = find_active_instance_all(gm.constants.oP)
+    for _, p in ipairs(players) do
+        if p.m_id == 1.0 then
+            return p
         end
     end
 
@@ -213,6 +230,62 @@ end
 
 
 --[[
+    is_lobby_host() -> bool
+
+    Returns true if this game client
+    is the host of the lobby.
+
+    Adapted from code by Miguelito.
+]]
+is_lobby_host = function()
+    local pref_name = find_active_instance(gm.constants.oInit).pref_name
+    for i = 1, #gm.CInstance.instances_active do
+        local inst = gm.CInstance.instances_active[i]
+        if inst.user_name == pref_name then
+            if inst.m_id == 1.0 then return true end
+        end
+    end
+    return false
+end
+
+
+--[[
+    table_merge(...) -> table
+
+    ...             A variable amount of tables.
+
+    Returns a new table containing
+    the values from input tables.
+
+    Combining two number indexed tables will
+    order them in the order that they were inputted.
+
+        e.g.    a = {1, 2, 3}
+                b = {4, 5, 6}
+                c = Helper.table_merge(a, b)
+
+                log.info(table.concat(c))   ->  "123456"
+                log.info(c[5])              ->  5
+
+    When mixing number indexed and string keys, the
+    indexed values will come first in order,
+    while string keys will come after unordered.
+]]
+table_merge = function(...)
+    local new = {}
+    for _, t in ipairs{...} do
+        for k, v in pairs(t) do
+            if tonumber(k) then
+                while new[k] do k = k + 1 end
+            end
+            new[k] = v
+        end
+    end
+    return new
+end
+
+
+--[[
     initialize_item_table() -> void
 
     Initializes a table of item data tables.
@@ -228,6 +301,7 @@ end
     .rarity         The rarity (tier) of the item  (number)
                     * This also corresponds to the .rarities enum at the top
                     * White (Common) is indexed from 1 here, while in-game it is tier 0
+                    * "notier" (tier 8) items may be missing object_indexes
     .class_id       The index within the class_item/class_equipment arrays
     .namespace      The namespace that the item resides in (vanilla uses "ror")
     .identifier     The internal identifier that the item uses (i.e., "crowbar")
@@ -291,7 +365,8 @@ end
 --[[
     find_item(identifier) -> table or nil
 
-    identifier      object_index or localization string of the item
+    identifier      object_index, localization string
+                    or "namespace-identifier" string of the item
 
     Returns the item data table (see initialize_item_table)
     if it exists, or nil otherwise.
@@ -303,6 +378,7 @@ find_item = function(identifier)
         local item = items_all[i]
         if _type == "number" and item.id == identifier then return item end
         if _type == "string" and item.localization == identifier then return item end
+        if _type == "string" and item.namespace.."-"..item.identifier == identifier then return item end
     end
     return nil
 end

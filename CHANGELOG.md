@@ -10,3 +10,9 @@
 ### v1.0.3
 * Updated manifest dependency.
 * Added add_chat_message (from ShareItem).
+
+### v1.0.4
+* find_item works with "namespace-identifier" strings now
+* Added: get_host_player
+* Added: is_lobby_host
+* Added: table_merge

@@ -60,6 +60,13 @@ this client, or nil if none can be found.
 ```
 
 ```
+get_host_player() -> instance or nil
+
+Returns the player instance belonging to
+the host, or nil if none can be found.
+```
+
+```
 get_teleporter() -> instance or nil
 
 Returns the stage teleporter,
@@ -123,6 +130,38 @@ text            The message to send
 Taken from ShareItem mod.
 ```
 
+```
+is_lobby_host() -> bool
+
+Returns true if this game client
+is the host of the lobby.
+
+Adapted from code by Miguelito.
+```
+
+```
+table_merge(...) -> table
+
+...             A variable amount of tables.
+
+Returns a new table containing
+the values from input tables.
+
+Combining two number indexed tables will
+order them in the order that they were inputted.
+
+    e.g.    a = {1, 2, 3}
+            b = {4, 5, 6}
+            c = Helper.table_merge(a, b)
+
+            log.info(table.concat(c))   ->  "123456"
+            log.info(c[5])              ->  5
+
+When mixing number indexed and string keys, the
+indexed values will come first in order,
+while string keys will come after unordered.
+```
+
 Items
 ```
 rarities = {
@@ -170,7 +209,8 @@ If given, only returns items of a specified rarity.
 ```
 find_item(identifier) -> table or nil
 
-identifier      object_index or localization string of the item
+identifier      object_index, localization string
+                or "namespace-identifier" string of the item
 
 Returns the item data table (see initialize_item_table)
 if it exists, or nil otherwise.

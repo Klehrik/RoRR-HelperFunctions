@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.4
+-- HelperFunctions v1.0.5
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -76,6 +76,8 @@ end
 
     Returns the player instance belonging to
     this client, or nil if none can be found.
+
+    Edited by Miguelito to work in Trials.
 ]]
 get_client_player = function()
     -- Using pref_name to identify which player is this client
@@ -86,6 +88,10 @@ get_client_player = function()
 
     -- Get the player that belongs to this client
     local players = find_active_instance_all(gm.constants.oP)
+
+    -- Return the first player if there is only one player
+    if #players == 1 then return players[1] end
+
     for _, p in ipairs(players) do
         if p.user_name == pref_name then
             return p

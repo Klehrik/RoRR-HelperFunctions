@@ -16,3 +16,6 @@
 * Added: get_host_player
 * Added: is_lobby_host
 * Added: table_merge
+
+### v1.0.5
+* get_client_player works in Trials mode now

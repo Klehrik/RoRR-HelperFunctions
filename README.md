@@ -18,6 +18,7 @@ Install this mod through the Mod Manager:
 
 ### Credits
 * Everybody active in the [Return of Modding server](https://discord.gg/VjS57cszMq).
+* Miguelito for several additions.
 
 ---
 
@@ -57,6 +58,8 @@ get_client_player() -> instance or nil
 
 Returns the player instance belonging to
 this client, or nil if none can be found.
+
+Edited by Miguelito to work in Trials.
 ```
 
 ```

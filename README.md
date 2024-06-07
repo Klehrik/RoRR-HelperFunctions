@@ -154,6 +154,13 @@ is_singleplayer() -> bool
 Returns true if in a singleplayer run.
 ```
 
+```
+is_singleplayer_or_host() -> bool
+
+Returns true if in a singleplayer run,
+or if this game client is the host of the lobby.
+```
+
 Tables
 ```
 table_merge(...) -> table
@@ -252,11 +259,14 @@ if it exists, or nil otherwise.
 
 Net
 ```
-net_send(id, data, send_to_self) -> void
+net_send(id, data, send_to_self, exclude) -> void
 
 id              The identifier of the data
 data            The data to be sent  (table)
 send_to_self    Whether or not to send the data to this client  (default false)
+exclude         The player to exclude  (by user_name, optional)
+                * This is useful if the host receives data from a client,
+                  and wants to send the data to all other clients.
 
 Sends data to other players.
 You can queue multiple blocks of data under the same id.

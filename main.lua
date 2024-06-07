@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.6
+-- HelperFunctions v1.0.7
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -285,8 +285,19 @@ end
 
     Returns true if in a singleplayer run.
 ]]
-is_singleplayer = function(m_id)
+is_singleplayer = function()
     return is_lobby_host(0.0)
+end
+
+
+--[[
+    is_singleplayer_or_host() -> bool
+
+    Returns true if in a singleplayer run,
+    or if this game client is the host of the lobby.
+]]
+is_singleplayer_or_host = function()
+    return is_singleplayer() or is_lobby_host()
 end
 
 
@@ -482,20 +493,25 @@ end
 
 
 --[[
-    net_send(id, data, send_to_self) -> void
+    net_send(id, data, send_to_self, exclude) -> void
 
     id              The identifier of the data
     data            The data to be sent  (table)
     send_to_self    Whether or not to send the data to this client  (default false)
+    exclude         The player to exclude  (by user_name, optional)
+                    * This is useful if the host receives data from a client,
+                      and wants to send the data to all other clients.
 
     Sends data to other players.
     You can queue multiple blocks of data under the same id.
 
     See net_listen for usage example.
 ]]
-net_send = function(id, data, send_to_self)
+net_send = function(id, data, send_to_self, exclude)
     local my_player = gm.variable_global_get("my_player")
     local message = "[HelperFunctionsNET]"..id.."|||"..table_to_string(data)
+    
+    if exclude then message = message.."|||"..exclude end
     
     if send_to_self then gm.chat_add_user_message(my_player, message) end
     my_player:net_send_instance_message(4, message)
@@ -577,11 +593,14 @@ gm.pre_script_hook(gm.constants.__input_system_tick, function(self, other, resul
 
             if string.sub(message.text, 1, 20) == "[HelperFunctionsNET]" then
                 local data = gm.string_split(string.sub(message.text, 21, #message.text), "|||")
-                if not net_data[data[1]] then net_data[data[1]] = {} end
-                table.insert(net_data[data[1]], {
-                    sender  = message.name,
-                    data    = string_to_table(data[2])
-                })
+
+                if (not data[3]) or (data[3] ~= gm.variable_global_get("my_player").user_name) then
+                    if not net_data[data[1]] then net_data[data[1]] = {} end
+                    table.insert(net_data[data[1]], {
+                        sender  = message.name,
+                        data    = string_to_table(data[2])
+                    })
+                end
 
                 gm.ds_list_delete(oInit.chat_messages, n)
                 oInit.chat_alpha = 0.0

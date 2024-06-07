@@ -28,3 +28,7 @@
 * Added: net_has
 * Added: is_singleplayer
 * Added: get_player_from_name
+
+### v1.0.7
+* Added: is_singleplayer_or_host
+* net_send can now exclude a player

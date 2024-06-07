@@ -19,3 +19,12 @@
 
 ### v1.0.5
 * get_client_player works in Trials mode now
+
+### v1.0.6
+* Added: table_to_string
+* Added: string_to_table
+* Added: net_send
+* Added: net_listen
+* Added: net_has
+* Added: is_singleplayer
+* Added: get_player_from_name

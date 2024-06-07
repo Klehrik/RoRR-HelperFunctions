@@ -9,16 +9,13 @@ mods.on_all_mods_loaded(function() for k, v in pairs(mods) do if type(v) == "tab
 
 ### Installation Instructions
 
-Install this mod through the Mod Manager:
-* Download the [Immediate Mod Manager](https://thunderstore.io/c/risk-of-rain-returns/p/ReturnOfModding/ImmediateModManager) and open it.
-* Launch the game once through Steam with the Mod Manager open to complete the setup.
-* Close the game, and install this mod along with its dependencies (`ReturnOfModding` and `HelperFunctions`) from the list on the left-hand side.
-* Launch the game by clicking the "Launch Game" button, and the mods should be loaded. Enjoy!
+Follow the instructions [listed here](https://docs.google.com/document/d/1NgLwb8noRLvlV9keNc_GF2aVzjARvUjpND2rxFgxyfw/edit?usp=sharing).
 
 
 ### Credits
 * Everybody active in the [Return of Modding server](https://discord.gg/VjS57cszMq).
 * Miguelito for several additions.
+* iDeathHD for the modloader itself and for helping with client->host chat message sending.
 
 ---
 
@@ -67,6 +64,15 @@ get_host_player() -> instance or nil
 
 Returns the player instance belonging to
 the host, or nil if none can be found.
+```
+
+```
+get_player_from_name(name) -> instance or nil
+
+name            The name to check for
+
+Returns the player instance with the specified
+user_name, or nil if they don't exist.
 ```
 
 ```
@@ -143,9 +149,16 @@ Adapted from code by Miguelito.
 ```
 
 ```
+is_singleplayer() -> bool
+
+Returns true if in a singleplayer run.
+```
+
+Tables
+```
 table_merge(...) -> table
 
-...             A variable amount of tables.
+...             A variable amount of tables
 
 Returns a new table containing
 the values from input tables.
@@ -163,6 +176,23 @@ order them in the order that they were inputted.
 When mixing number indexed and string keys, the
 indexed values will come first in order,
 while string keys will come after unordered.
+```
+
+```
+table_to_string(table) -> string
+
+table           The table to convert
+
+Returns a string encoding of the table.
+Supports nested tables.
+```
+
+```
+string_to_table(string) -> table
+
+string          The string to convert
+
+Returns the table from the encoded string (see table_to_string).
 ```
 
 Items
@@ -218,4 +248,67 @@ identifier      object_index, localization string
 
 Returns the item data table (see initialize_item_table)
 if it exists, or nil otherwise.
+```
+
+Net
+```
+net_send(id, data, send_to_self) -> void
+
+id              The identifier of the data
+data            The data to be sent  (table)
+send_to_self    Whether or not to send the data to this client  (default false)
+
+Sends data to other players.
+You can queue multiple blocks of data under the same id.
+
+See net_listen for usage example.
+```
+
+```
+net_listen(id) -> table or nil
+
+id              The identifier of the data to listen for
+
+Returns the first table of data that was sent under
+the specified id (net_send), and removes it from the queue
+(i.e., each net_send is read once using net_listen, in order of FIFO).
+
+The returned table contains:
+sender          The name of the player the data was sent from  (string)
+data            The table of data that was sent
+
+
+E.g.,
+Helper.net_send("set_damage", {1000}, true)
+Helper.net_send("set_damage", {2000}, true)
+Helper.net_send("tp_up", {100}, true)
+
+In __input_system_tick hook:
+local player = Helper.get_client_player()
+
+while Helper.net_has("set_damage") do
+    local listener = Helper.net_listen("set_damage")
+    player.damage = listener.data[1]    -- .data is a table
+    player.damage_base = player.damage
+end
+
+local listener = Helper.net_listen("tp_up")
+if listener then
+    player.y = player.y - listener.data[1]
+end
+
+
+The example above will:
+* Set all players' damage to 1000
+* Set all players' damage to 2000
+* Teleport all players upwards by 100 pixels
+```
+
+```
+net_has(id) -> bool
+
+id              The identifier of the data
+
+Returns true if there is data
+under the specified id.
 ```

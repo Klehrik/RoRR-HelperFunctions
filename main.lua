@@ -1,7 +1,9 @@
--- HelperFunctions v1.0.5
+-- HelperFunctions v1.0.6
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
+
+local net_data = {}
 
 
 
@@ -116,7 +118,25 @@ get_host_player = function()
             return p
         end
     end
+    return nil
+end
 
+
+--[[
+    get_player_from_name(name) -> instance or nil
+
+    name            The name to check for
+
+    Returns the player instance with the specified
+    user_name, or nil if they don't exist.
+]]
+get_player_from_name = function(name)
+    local players = find_active_instance_all(gm.constants.oP)
+    for _, p in ipairs(players) do
+        if p.user_name == name then
+            return p
+        end
+    end
     return nil
 end
 
@@ -243,15 +263,30 @@ end
 
     Adapted from code by Miguelito.
 ]]
-is_lobby_host = function()
-    local pref_name = find_active_instance(gm.constants.oInit).pref_name
-    for i = 1, #gm.CInstance.instances_active do
-        local inst = gm.CInstance.instances_active[i]
-        if inst.user_name == pref_name then
-            if inst.m_id == 1.0 then return true end
+is_lobby_host = function(m_id)
+    local m_id = m_id or 1.0
+
+    local oInit = find_active_instance(gm.constants.oInit)
+    if oInit then
+        local pref_name = oInit.pref_name
+        for i = 1, #gm.CInstance.instances_active do
+            local inst = gm.CInstance.instances_active[i]
+            if inst.user_name == pref_name then
+                if inst.m_id == m_id then return true end
+            end
         end
     end
     return false
+end
+
+
+--[[
+    is_singleplayer() -> bool
+
+    Returns true if in a singleplayer run.
+]]
+is_singleplayer = function(m_id)
+    return is_lobby_host(0.0)
 end
 
 
@@ -288,6 +323,62 @@ table_merge = function(...)
         end
     end
     return new
+end
+
+
+--[[
+    table_to_string(table) -> string
+
+    table           The table to convert
+
+    Returns a string encoding of the table.
+    Supports nested tables.
+]]
+table_to_string = function(table_)
+    local str = ""
+    for i, v in ipairs(table_) do
+        if type(v) == "table" then str = str.."[[||"..table_to_string(v).."||]]||"
+        else str = str..tostring(v).."||"
+        end
+    end
+    return string.sub(str, 1, -3)
+end
+
+
+--[[
+    string_to_table(string) -> table
+
+    string          The string to convert
+
+    Returns the table from the encoded string (see table_to_string).
+]]
+string_to_table = function(string_)
+    local raw = gm.string_split(string_, "||")
+    local parsed = {}
+    local i = 0
+    while i < #raw do
+        i = i + 1
+        if raw[i] == "[[" then  -- table
+            local inner = raw[i + 1].."||"
+            local j = i + 2
+            local open = 1
+            while true do
+                if raw[j] == "[[" then open = open + 1
+                elseif raw[j] == "]]" then open = open - 1
+                end
+                if open <= 0 then break end
+                inner = inner..raw[j].."||"
+                j = j + 1
+            end
+            table.insert(parsed, string_to_table(string.sub(inner, 1, -3)))
+            i = j
+        else
+            local value = raw[i]
+            if tonumber(value) then value = tonumber(value) end
+            table.insert(parsed, value)
+        end
+    end
+    return parsed
 end
 
 
@@ -388,3 +479,113 @@ find_item = function(identifier)
     end
     return nil
 end
+
+
+--[[
+    net_send(id, data, send_to_self) -> void
+
+    id              The identifier of the data
+    data            The data to be sent  (table)
+    send_to_self    Whether or not to send the data to this client  (default false)
+
+    Sends data to other players.
+    You can queue multiple blocks of data under the same id.
+
+    See net_listen for usage example.
+]]
+net_send = function(id, data, send_to_self)
+    local my_player = gm.variable_global_get("my_player")
+    local message = "[HelperFunctionsNET]"..id.."|||"..table_to_string(data)
+    
+    if send_to_self then gm.chat_add_user_message(my_player, message) end
+    my_player:net_send_instance_message(4, message)
+end
+
+
+--[[
+    net_listen(id) -> table or nil
+
+    id              The identifier of the data to listen for
+
+    Returns the first table of data that was sent under
+    the specified id (net_send), and removes it from the queue
+    (i.e., each net_send is read once using net_listen, in order of FIFO).
+
+    The returned table contains:
+    sender          The name of the player the data was sent from  (string)
+    data            The table of data that was sent
+
+
+    E.g.,
+    Helper.net_send("set_damage", {1000}, true)
+    Helper.net_send("set_damage", {2000}, true)
+    Helper.net_send("tp_up", {100}, true)
+
+    In __input_system_tick hook:
+    local player = Helper.get_client_player()
+
+    while Helper.net_has("set_damage") do
+        local listener = Helper.net_listen("set_damage")
+        player.damage = listener.data[1]    -- .data is a table
+        player.damage_base = player.damage
+    end
+
+    local listener = Helper.net_listen("tp_up")
+    if listener then
+        player.y = player.y - listener.data[1]
+    end
+
+
+    The example above will:
+    * Set all players' damage to 1000
+    * Set all players' damage to 2000
+    * Teleport all players upwards by 100 pixels
+]]
+net_listen = function(id)
+    if net_data[id] then
+        local data = net_data[id][1]
+        table.remove(net_data[id], 1)
+        if #net_data[id] <= 0 then net_data[id] = nil end
+        return data
+    end
+    return nil
+end
+
+
+--[[
+    net_has(id) -> bool
+
+    id              The identifier of the data
+
+    Returns true if there is data
+    under the specified id.
+]]
+net_has = function(id)
+    return net_data[id] ~= nil
+end
+
+
+
+-- ========== Hooks ==========
+
+gm.pre_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+    -- Scan the 15 most recent chat messages and check if they have net_send ids
+    local oInit = find_active_instance(gm.constants.oInit)
+    if oInit and gm.ds_list_size(oInit.chat_messages) > 0 then
+        for n = math.min(gm.ds_list_size(oInit.chat_messages) - 1, 15), 0, -1 do
+            local message = gm.ds_list_find_value(oInit.chat_messages, n)
+
+            if string.sub(message.text, 1, 20) == "[HelperFunctionsNET]" then
+                local data = gm.string_split(string.sub(message.text, 21, #message.text), "|||")
+                if not net_data[data[1]] then net_data[data[1]] = {} end
+                table.insert(net_data[data[1]], {
+                    sender  = message.name,
+                    data    = string_to_table(data[2])
+                })
+
+                gm.ds_list_delete(oInit.chat_messages, n)
+                oInit.chat_alpha = 0.0
+            end
+        end
+    end
+end)

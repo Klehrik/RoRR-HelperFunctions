@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.7
+-- HelperFunctions v1.0.8
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -578,6 +578,19 @@ end
 ]]
 net_has = function(id)
     return net_data[id] ~= nil
+end
+
+
+--[[
+    net_clear(id) -> bool
+
+    id              The identifier of the data
+
+    Clears all the data
+    under the specified id.
+]]
+net_clear = function(id)
+    net_data[id] = nil
 end
 
 

@@ -32,3 +32,6 @@
 ### v1.0.7
 * Added: is_singleplayer_or_host
 * net_send can now exclude a player
+
+### v1.0.8
+* Added: net_clear

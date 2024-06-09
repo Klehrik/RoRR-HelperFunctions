@@ -322,3 +322,12 @@ id              The identifier of the data
 Returns true if there is data
 under the specified id.
 ```
+
+```
+net_clear(id) -> bool
+
+id              The identifier of the data
+
+Clears all the data
+under the specified id.
+```

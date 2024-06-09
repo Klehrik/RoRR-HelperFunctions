@@ -1,6 +1,6 @@
 ﻿{
 	"name": "HelperFunctions",
-	"version_number": "1.0.7",
+	"version_number": "1.0.8",
 	"website_url": "https://github.com/Klehrik/RoRR-HelperFunctions",
 	"description": "A collection of helper functions for modding.",
 	"dependencies": [

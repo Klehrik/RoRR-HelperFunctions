@@ -102,9 +102,34 @@ Returns:
 2. true if the table is not empty
 ```
 
+```
+spawn_crate(x, y, rarity, [items]) -> instance
+
+x               The x position of the crate
+y               The y position of the crate
+rarity          The rarity of the crate (see the .rarities enum); available: white, green, red, equipment, boss
+items           An array of class_item IDs (defaults to all items of the rarity)
+
+Spawns a command crate on the
+ground below the given position.
+In MP, spawning as host will
+sync spawning with clients.
+[!] Do not spawn as client.
+
+The contents of the crate can be
+replaced with an array of class_item IDs.
+
+Returns the created instance.
+
+
+Example:
+-- Spawns a green crate containing a Fire Shield and Red Whip
+Helper.spawn_crate(player.x, player.y, Helper.rarities.green, {gm.item_find("ror-fireShield"), gm.item_find("ror-redWhip")})
+```
+
 Misc.
 ```
-ease_in(x, n) -> float
+ease_in(x, [n]) -> float
 
 x               The input value
 n               The easing power (default 2 (quadratic))
@@ -114,7 +139,7 @@ a given value x between 0 and 1.
 ```
 
 ```
-ease_out(x, n) -> float
+ease_out(x, [n]) -> float
 
 x               The input value
 n               The easing power (default 2 (quadratic))
@@ -143,9 +168,16 @@ Taken from ShareItem mod.
 is_lobby_host() -> bool
 
 Returns true if this game client
-is the host of the lobby.
+is the host of a multiplayer lobby.
 
 Adapted from code by Miguelito.
+```
+
+```
+is_lobby_client() -> bool
+
+Returns true if this game client
+is a client of a multiplayer lobby.
 ```
 
 ```
@@ -173,12 +205,12 @@ the values from input tables.
 Combining two number indexed tables will
 order them in the order that they were inputted.
 
-    e.g.    a = {1, 2, 3}
-            b = {4, 5, 6}
+    e.g.    a = {1, 3, 5}
+            b = {2, 4, 6}
             c = Helper.table_merge(a, b)
 
-            log.info(table.concat(c))   ->  "123456"
-            log.info(c[5])              ->  5
+            log.info(table.concat(c))   ->  "135246"
+            log.info(c[5])              ->  4
 
 When mixing number indexed and string keys, the
 indexed values will come first in order,
@@ -243,7 +275,7 @@ get_all_items(rarity) -> table
 
 rarity          Item rarity filter (optional)
 
-Returns a table of item data tables (see initialize_item_table).
+Returns a copy of the table of item data tables (see initialize_item_table).
 If given, only returns items of a specified rarity.
 ```
 
@@ -253,13 +285,13 @@ find_item(identifier) -> table or nil
 identifier      object_index, localization string
                 or "namespace-identifier" string of the item
 
-Returns the item data table (see initialize_item_table)
+Returns a copy of the item data table (see initialize_item_table)
 if it exists, or nil otherwise.
 ```
 
 Net
 ```
-net_send(id, data, send_to_self, exclude) -> void
+net_send(id, data, [send_to_self], [exclude]) -> void
 
 id              The identifier of the data
 data            The data to be sent  (table)

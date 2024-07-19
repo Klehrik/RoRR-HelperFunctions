@@ -1,9 +1,10 @@
--- HelperFunctions v1.0.8
+-- HelperFunctions v1.0.9
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
 
 local net_data = {}
+local net_received = false
 
 
 
@@ -202,7 +203,103 @@ end
 
 
 --[[
-    ease_in(x, n) -> float
+    spawn_crate(x, y, rarity, [items]) -> instance
+
+    x               The x position of the crate
+    y               The y position of the crate
+    rarity          The rarity of the crate (see the .rarities enum); available: white, green, red, equipment, boss
+    items           An array of class_item IDs (defaults to all items of the rarity)
+
+    Spawns a command crate on the
+    ground below the given position.
+    In MP, spawning as host will
+    sync spawning with clients.
+    [!] Do not spawn as client.
+
+    The contents of the crate can be
+    replaced with an array of class_item IDs.
+
+    Returns the created instance.
+
+
+    Example:
+    -- Spawns a green crate containing a Fire Shield and Red Whip
+    Helper.spawn_crate(player.x, player.y, Helper.rarities.green, {gm.item_find("ror-fireShield"), gm.item_find("ror-redWhip")})
+]]
+spawn_crate = function(x, y, rarity, items)
+    local lang_map = gm.variable_global_get("_language_map")
+    local class_item = gm.variable_global_get("class_item")
+
+    local sprites = {gm.constants.sCommandCrateCommon, gm.constants.sCommandCrateUncommon, gm.constants.sCommandCrateRare, gm.constants.sCommandCrateEquipment, gm.constants.sCommandCrateBoss}
+    local sprites_use = {gm.constants.sCommandCrateCommonUse, gm.constants.sCommandCrateUncommonUse, gm.constants.sCommandCrateRareUse, gm.constants.sCommandCrateEquipmentUse, gm.constants.sCommandCrateBossUse}
+    local isi = {6.0, 8.0, 10.0, 14.0, 12.0}
+    local isii = {5.0, 7.0, 9.0, 13.0, 11.0}
+
+    -- Move downwards until on the ground
+    while not gm.position_meeting(x, y, gm.constants.pBlockStatic) and y < gm.variable_global_get("room_height") do y = y + 1 end
+
+    -- Taken from Scrappers mod
+    local c = gm.instance_create_depth(x, y, 0, gm.constants.oCustomObject_pInteractableCrate)
+
+    -- Most of the following are necessary,
+    -- and are not set from creating the instance directly (via gm.instance_create)
+    c.active = 0.0
+    c.owner = -4.0
+    c.activator = -4.0
+    c.buy_button_visible = 0.0
+    c.can_activate_frame = 0.0
+    c.mouse_x_last = 0.0
+    c.mouse_y_last = 0.0
+    c.last_move_was_mouse = false
+    c.using_mouse = false
+    c.last_activated_frame = -1.0
+    c.cam_rect_x1 = x - 100
+    c.cam_rect_y1 = y - 100
+    c.cam_rect_x2 = x + 100
+    c.cam_rect_y2 = y + 100
+    c.contents = nil
+    c.inventory = 74.0 + (rarity * 2.0)
+    c.flash = 0.0
+    c.interact_scroll_index = isi[rarity]
+    c.interact_scroll_index_inactive = isii[rarity]
+    c.surf_text_cost_large = -1.0
+    c.surf_text_cost_small = -1.0
+    c.translation_key = "interactable.pInteractableCrate"
+    c.text = gm.ds_map_find_value(lang_map, c.translation_key..".text")
+    c.spawned = true
+    c.cost = 0.0
+    c.cost_color = 8114927.0
+    c.cost_type = 0.0
+    c.selection = 0.0
+    c.select_cd = 0.0
+    c.sprite_index = sprites[rarity]
+    c.sprite_death = sprites_use[rarity]
+    c.fade_alpha = 0.0
+    c.col_index = rarity - 1.0
+    c.m_id = gm.set_m_id(true)  -- I have no idea what the argument is supposed to be, but this works
+    c.my_player = -4.0
+    c.__custom_id = rarity - 1.0
+    c.__object_index = 799.0 + rarity
+    c.image_speed = 0.06
+    c.tier = rarity - 1.0
+
+    -- Replace default crate items with custom set
+    if items then
+        c.contents = gm.array_create()
+        for _, i in ipairs(items) do
+            gm.array_push(c.contents, class_item[i + 1][9])
+        end
+    end
+
+    -- [Host]  Send spawn data to clients
+    if is_lobby_host() then net_send("HelperFunctions.spawn_crate", {x, y, rarity, items}) end
+
+    return c
+end
+
+
+--[[
+    ease_in(x, [n]) -> float
 
     x               The input value
     n               The easing power (default 2 (quadratic))
@@ -217,7 +314,7 @@ end
 
 
 --[[
-    ease_out(x, n) -> float
+    ease_out(x, [n]) -> float
 
     x               The input value
     n               The easing power (default 2 (quadratic))
@@ -259,7 +356,7 @@ end
     is_lobby_host() -> bool
 
     Returns true if this game client
-    is the host of the lobby.
+    is the host of a multiplayer lobby.
 
     Adapted from code by Miguelito.
 ]]
@@ -277,6 +374,17 @@ is_lobby_host = function(m_id)
         end
     end
     return false
+end
+
+
+--[[
+    is_lobby_client() -> bool
+
+    Returns true if this game client
+    is a client of a multiplayer lobby.
+]]
+is_lobby_client = function()
+    return not is_singleplayer_or_host()
 end
 
 
@@ -312,12 +420,12 @@ end
     Combining two number indexed tables will
     order them in the order that they were inputted.
 
-        e.g.    a = {1, 2, 3}
-                b = {4, 5, 6}
+        e.g.    a = {1, 3, 5}
+                b = {2, 4, 6}
                 c = Helper.table_merge(a, b)
 
-                log.info(table.concat(c))   ->  "123456"
-                log.info(c[5])              ->  5
+                log.info(table.concat(c))   ->  "135246"
+                log.info(c[5])              ->  4
 
     When mixing number indexed and string keys, the
     indexed values will come first in order,
@@ -385,7 +493,9 @@ string_to_table = function(string_)
             i = j
         else
             local value = raw[i]
-            if tonumber(value) then value = tonumber(value) end
+            if tonumber(value) then value = tonumber(value)
+            elseif value == "nil" then value = nil
+            end
             table.insert(parsed, value)
         end
     end
@@ -428,7 +538,7 @@ initialize_item_table = function()
             localization = item[3], 
             name = gm.ds_map_find_value(lang_map, item[3]),
             rarity = rarity,
-            class_id = i,
+            class_id = gm.item_find(item[1].."-"..item[2]),
             namespace = item[1],
             identifier = item[2]
         }
@@ -445,7 +555,7 @@ initialize_item_table = function()
             localization = equip[3],
             name = gm.ds_map_find_value(lang_map, equip[3]),
             rarity = rarity,
-            class_id = i,
+            class_id = gm.equipment_find(equip[1].."-"..equip[2]),
             namespace = equip[1],
             identifier = equip[2]
         }
@@ -460,13 +570,13 @@ end
 
     rarity          Item rarity filter (optional)
 
-    Returns a table of item data tables (see initialize_item_table).
+    Returns a copy of the table of item data tables (see initialize_item_table).
     If given, only returns items of a specified rarity.
 ]]
 get_all_items = function(rarity)
     if not items then initialize_item_table() end
-    if not rarity then return items_all end
-    return items[rarity]
+    if not rarity then return table_merge(items_all) end
+    return table_merge(items[rarity])
 end
 
 
@@ -476,7 +586,7 @@ end
     identifier      object_index, localization string
                     or "namespace-identifier" string of the item
 
-    Returns the item data table (see initialize_item_table)
+    Returns a copy of the item data table (see initialize_item_table)
     if it exists, or nil otherwise.
 ]]
 find_item = function(identifier)
@@ -484,16 +594,16 @@ find_item = function(identifier)
     local _type = type(identifier)
     for i = 1, #items_all do
         local item = items_all[i]
-        if _type == "number" and item.id == identifier then return item end
-        if _type == "string" and item.localization == identifier then return item end
-        if _type == "string" and item.namespace.."-"..item.identifier == identifier then return item end
+        if _type == "number" and item.id == identifier then return table_merge(item) end
+        if _type == "string" and item.localization == identifier then return table_merge(item) end
+        if _type == "string" and item.namespace.."-"..item.identifier == identifier then return table_merge(item) end
     end
     return nil
 end
 
 
 --[[
-    net_send(id, data, send_to_self, exclude) -> void
+    net_send(id, data, [send_to_self], [exclude]) -> void
 
     id              The identifier of the data
     data            The data to be sent  (table)
@@ -598,26 +708,38 @@ end
 -- ========== Hooks ==========
 
 gm.pre_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
-    -- Scan the 15 most recent chat messages and check if they have net_send ids
-    local oInit = find_active_instance(gm.constants.oInit)
-    if oInit and gm.ds_list_size(oInit.chat_messages) > 0 then
-        for n = math.min(gm.ds_list_size(oInit.chat_messages) - 1, 15), 0, -1 do
-            local message = gm.ds_list_find_value(oInit.chat_messages, n)
+    -- [Client]  Spawn crate
+    while net_has("HelperFunctions.spawn_crate") do
+        local data = net_listen("HelperFunctions.spawn_crate").data
+        spawn_crate(data[1], data[2], data[3], data[4])
+    end
+end)
 
-            if string.sub(message.text, 1, 20) == "[HelperFunctionsNET]" then
-                local data = gm.string_split(string.sub(message.text, 21, #message.text), "|||")
 
-                if (not data[3]) or (data[3] ~= gm.variable_global_get("my_player").user_name) then
-                    if not net_data[data[1]] then net_data[data[1]] = {} end
-                    table.insert(net_data[data[1]], {
-                        sender  = message.name,
-                        data    = string_to_table(data[2])
-                    })
-                end
+-- Net functionality
+gm.pre_script_hook(104659.0, function(self, other, result, args)
+    net_received = true
+end)
 
-                gm.ds_list_delete(oInit.chat_messages, n)
-                oInit.chat_alpha = 0.0
+gm.pre_script_hook(gm.constants.chat_add_user_message, function(self, other, result, args)
+    if net_received then
+        local player = args[1].value.user_name
+        local text = args[2].value
+
+        if string.sub(text, 1, 20) == "[HelperFunctionsNET]" then
+            local data = gm.string_split(string.sub(text, 21, #text), "|||")
+
+            if (not data[3]) or (data[3] ~= gm.variable_global_get("my_player").user_name) then
+                if not net_data[data[1]] then net_data[data[1]] = {} end
+                table.insert(net_data[data[1]], {
+                    sender  = player,
+                    data    = string_to_table(data[2])
+                })
             end
+
+            return false
         end
+
+        net_received = false
     end
 end)

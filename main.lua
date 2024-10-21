@@ -1,4 +1,4 @@
--- HelperFunctions v1.0.9
+-- HelperFunctions
 -- Klehrik
 
 log.info("Successfully loaded ".._ENV["!guid"]..".")
@@ -723,6 +723,8 @@ end)
 
 gm.pre_script_hook(gm.constants.chat_add_user_message, function(self, other, result, args)
     if net_received then
+        net_received = false
+
         local player = args[1].value.user_name
         local text = args[2].value
 
@@ -739,7 +741,5 @@ gm.pre_script_hook(gm.constants.chat_add_user_message, function(self, other, res
 
             return false
         end
-
-        net_received = false
     end
 end)

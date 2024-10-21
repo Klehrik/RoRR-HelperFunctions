@@ -1,3 +1,5 @@
+**Deprecated; use [RoRR Modding Toolkit](https://thunderstore.io/c/risk-of-rain-returns/p/RoRRModdingToolkit/RoRR_Modding_Toolkit/) instead.**
+
 A collection of helper functions for modding.
 
 To use, paste this line in your code (you can rename the `Helper` table):
@@ -8,8 +10,8 @@ mods.on_all_mods_loaded(function() for k, v in pairs(mods) do if type(v) == "tab
 ---
 
 ### Installation Instructions
-
-Follow the instructions [listed here](https://docs.google.com/document/d/1NgLwb8noRLvlV9keNc_GF2aVzjARvUjpND2rxFgxyfw/edit?usp=sharing).
+Follow the instructions [listed here](https://docs.google.com/document/d/1NgLwb8noRLvlV9keNc_GF2aVzjARvUjpND2rxFgxyfw/edit?usp=sharing).  
+Join the [Return of Modding server](https://discord.gg/VjS57cszMq) for support.  
 
 
 ### Credits
